@@ -1,0 +1,12 @@
+torch
+torchvision
+tensorboard
+ftfy
+regex
+tqdm
+pandas
+h5py
+lmdb
+scikit-learn
+matplotlib
+git+https://github.com/openai/CLIP.git
