@@ -30,7 +30,9 @@ For Flowers102, DTD, UCF101, Food101, EuroSAT, OxfordPets, StanfordCars and SUN3
 
 `python experiments/resnet/vp_ilm.py --network resnet18 --dataset cifar10 --mapping-interval K`
 
-When $K = 1$, it's our ILM-VP method and when $K = 200$ (by default we run 200 epoch), it's the baseline FLM-VP method.
+$K = 1$：Our ILM-VP method.
+
+$K = 200$：(by default we run 200 epoch) The baseline FLM-VP method.
 
 **TP on CLIP:**
 
