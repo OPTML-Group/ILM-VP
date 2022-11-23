@@ -24,7 +24,7 @@ Put dataset under `data_path` in `cfg.py`. (e.g., data_path/flowers102, data_pat
 
 For Flowers102, DTD, UCF101, Food101, EuroSAT, OxfordPets, StanfordCars and SUN397, we use datasets splitted in [CoOp](https://github.com/KaiyangZhou/CoOp). For ABIDE, we use download code in [acerta-abide](https://github.com/lsa-pucrs/acerta-abide). For other datasets we use official ones provided by pytorch.
 
-## Generate VP
+## Generate Prompts
 
 **VP on ResNet:**
 
