@@ -43,3 +43,11 @@ $K = 200$：(by default we run 200 epoch) The baseline FLM-VP method.
 [Aochuan Chen](https://cse.msu.edu/~chenaoch/)
 
 ## Citation
+```
+@article{chen2022understanding,
+  title={Understanding and Improving Visual Prompting: A Label-Mapping Perspective},
+  author={Chen, Aochuan and Yao, Yuguang and Chen, Pin-Yu and Zhang, Yihua and Liu, Sijia},
+  journal={arXiv preprint arXiv:2211.11635},
+  year={2022}
+}
+```
