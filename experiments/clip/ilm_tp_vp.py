@@ -13,51 +13,35 @@ import io
 
 import sys
 sys.path.append(".")
-from datatools.prepare_data import prepare_clip_data
-from tools.frequency_mapping import generate_label_mapping_by_frequency, get_dist_matrix
+from data import prepare_additive_data
+from algorithms import generate_label_mapping_by_frequency, get_dist_matrix, label_mapping_base
 from tools.misc import *
-from tools.gen_text_embedding import get_saparate_text_embedding
-from tools.draw_mapping import plot_mapping
-from models.adv_program import VisualPrompt
+from tools.clip import get_saparate_text_embedding, DEFAULT_TEMPLATE, ENSEMBLE_TEMPLATES
+from tools.mapping_visualization import plot_mapping
+from models import AdditiveVisualPrompt
 from cfg import *
 
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
     p.add_argument('--seed', type=int, default=7)
-    p.add_argument('--dataset', choices=["cifar10", "cifar100", "abide", "dtd", "flowers102", "ucf101", "food101", "gtsrb", "svhn", "eurosat", "oxfordpets", "stanfordcars", "sun397"], default='cifar10')
-    p.add_argument('--mapping-num', type=int, default=1)
-    p.add_argument('--mapping-method', type=str, choices=['mean', 'max', 'solo'], default='solo')
-    p.add_argument('--mapping-interval', type=int, required=True)
-
+    p.add_argument('--dataset', choices=["cifar10", "cifar100", "abide", "dtd", "flowers102", "ucf101", "food101", "gtsrb", "svhn", "eurosat", "oxfordpets", "stanfordcars", "sun397"], required=True)
+    p.add_argument('--mapping-interval', type=int, default=1)
     p.add_argument('--epoch', type=int, default=200)
     p.add_argument('--lr', type=float, default=40)
     args = p.parse_args()
 
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
     set_seed(args.seed)
-
-    assert args.mapping_method in ["solo", "mean", "max"]
-    if args.mapping_method == 'solo':
-        args.mapping_num = 1
-    def label_mapping_base(logits, mapping_sequence):
-        if args.mapping_method == "mean":
-            modified_logits = logits[:, mapping_sequence].reshape(logits.size(0), -1, args.mapping_num).mean(-1)
-        elif args.mapping_method == "max":
-            modified_logits = logits[:, mapping_sequence].reshape(logits.size(0), -1, args.mapping_num).max(-1).values
-        else:
-            modified_logits = logits[:, mapping_sequence]
-        return modified_logits
-
-    exp = f"ar-prompt-mapping-clip"
+    exp = f"clip/ilm_tp_vp"
     save_path = os.path.join(results_path, exp, gen_folder_name(args))
 
     model, preprocess = clip.load("ViT-B/32")
     convert_models_to_fp32(model)
     model.eval()
     model.requires_grad_(False)
-    loaders, class_names = prepare_clip_data(dataset=args.dataset, data_path=data_path, preprocess=preprocess)
-    templates = [DEFAULT_TEMPLATE]+ENSEMBLE_TEMPLATES
+    loaders, class_names = prepare_additive_data(dataset=args.dataset, data_path=data_path, preprocess=preprocess)
+    templates = [DEFAULT_TEMPLATE] + ENSEMBLE_TEMPLATES
     txt_emb = torch.cat(get_saparate_text_embedding(class_names, templates, model))
     emb_names = np.array([f"T{i//len(class_names)} {class_names[i%len(class_names)]}" for i in range(txt_emb.size(0))])
     def network(x):
@@ -67,14 +51,15 @@ if __name__ == '__main__':
         return logits
     mapping_network = network
 
-    visual_prompt = VisualPrompt(224, 30).to(device)
+    # Visual Prompt
+    visual_prompt = AdditiveVisualPrompt(224, 30).to(device)
     
     # Optimizer
     optimizer = torch.optim.SGD(visual_prompt.parameters(), lr=args.lr, momentum=0.9)
     t_max = args.epoch * len(loaders['train'])
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=t_max)
 
-    # Make Dir
+    # Make dir
     os.makedirs(save_path, exist_ok=True)
     logger = SummaryWriter(os.path.join(save_path, 'tensorboard'))
 
@@ -83,7 +68,7 @@ if __name__ == '__main__':
     scaler = GradScaler()
     for epoch in range(args.epoch):
         if epoch % args.mapping_interval == 0:
-            mapping_sequence = generate_label_mapping_by_frequency(visual_prompt, mapping_network, loaders['train'], args.mapping_num)
+            mapping_sequence = generate_label_mapping_by_frequency(visual_prompt, mapping_network, loaders['train'])
             label_mapping = partial(label_mapping_base, mapping_sequence=mapping_sequence)
         visual_prompt.train()
         total_num = 0
@@ -145,8 +130,6 @@ if __name__ == '__main__':
             "epoch": epoch,
             "best_acc": best_acc,
             "mapping_sequence": mapping_sequence,
-            "mapping_method": args.mapping_method,
-            "mapping_num": args.mapping_num,
         }
         if acc > best_acc:
             best_acc = acc

@@ -7,14 +7,16 @@ from torch.utils.data import DataLoader, SubsetRandomSampler
 from torchvision import datasets, transforms
 from sklearn.model_selection import train_test_split
 
-from .dataset_lmdb import COOPLMDBDataset, LMDBDataset, ImageNetCLSLMDBDataset
+from .dataset_lmdb import COOPLMDBDataset
 from .abide import ABIDE
-from .const import GTSRB_LABEL_MAP, IMAGENETCLASSES, IMAGENETNORMALIZE
+from .const import GTSRB_LABEL_MAP, IMAGENETNORMALIZE
+
 
 def refine_classnames(class_names):
     for i, class_name in enumerate(class_names):
         class_names[i] = class_name.lower().replace('_', ' ').replace('-', ' ')
     return class_names
+
 
 def get_class_names_from_split(root):
     with open(os.path.join(root, "split.json")) as f:
@@ -22,7 +24,8 @@ def get_class_names_from_split(root):
     idx_to_class = OrderedDict(sorted({s[-2]: s[-1] for s in split}.items()))
     return list(idx_to_class.values())
 
-def prepare_ar_resnet_data(dataset, data_path):
+
+def prepare_expansive_data(dataset, data_path):
     data_path = os.path.join(data_path, dataset)
     if dataset == "cifar10":
         preprocess = transforms.Compose([
@@ -136,7 +139,7 @@ def prepare_ar_resnet_data(dataset, data_path):
     return loaders, configs
 
 
-def prepare_clip_data(dataset, data_path, preprocess):
+def prepare_additive_data(dataset, data_path, preprocess):
     data_path = os.path.join(data_path, dataset)
     if dataset == "cifar10":
         train_data = datasets.CIFAR10(root = data_path, train = True, download = False, transform = preprocess)
@@ -211,43 +214,6 @@ def prepare_clip_data(dataset, data_path, preprocess):
     return loaders, class_names
 
 
-def prepare_imagenet_data(data_path, shuffle_train=True):
-    data_path = os.path.join(data_path, "imagenet")
-    batch_size = 256
-    preprocess = transforms.Compose([
-        transforms.Lambda(lambda x: x.convert("RGB")),
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-    ])
-    train_data = LMDBDataset(root = data_path, split='train', transform=preprocess)
-    test_data = LMDBDataset(root = data_path, split='val', transform=preprocess)
-    loaders = {
-        'train': DataLoader(train_data, batch_size, shuffle = shuffle_train, num_workers=8),
-        'test': DataLoader(test_data, batch_size, shuffle = False, num_workers=8),
-    }
-    configs = {
-        'class_names': refine_classnames(IMAGENETCLASSES),
-        'batch_size': batch_size,
-    }
-    return loaders, configs
-
-
-def prepare_imagenet_classwise_data(data_path, class_id):
-    data_path = os.path.join(data_path, "imagenet")
-    batch_size = 2000
-    preprocess = transforms.Compose([
-        transforms.Lambda(lambda x: x.convert("RGB")),
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-    ])
-    train_data = ImageNetCLSLMDBDataset(root = data_path, split='train', class_id=class_id, transform=preprocess)
-    train_loader = DataLoader(train_data, batch_size, shuffle = False, num_workers=8)
-    x, _ = next(iter(train_loader))
-    return x
-
-
 def prepare_gtsrb_fraction_data(data_path, fraction, preprocess=None):
     data_path = os.path.join(data_path, "gtsrb")
     assert 0 < fraction <= 1
@@ -279,39 +245,3 @@ def prepare_gtsrb_fraction_data(data_path, fraction, preprocess=None):
             'test': DataLoader(test_data, 128, shuffle = False, num_workers=2),
         }
         return loaders, class_names
-
-def prepare_data_resolution(dataset, data_path, size):
-    if dataset == "cifar10":
-        data_path = os.path.join(data_path, "cifar10")
-        preprocess = transforms.Compose([
-            transforms.Resize((size, size)),
-            transforms.ToTensor(),
-        ])
-        train_data = datasets.CIFAR10(root = data_path, train = True, download = False, transform = preprocess)
-        test_data = datasets.CIFAR10(root = data_path, train = False, download = False, transform = preprocess)
-        loaders = {
-            'train': DataLoader(train_data, 128, shuffle = True, num_workers=2),
-            'test': DataLoader(test_data, 128, shuffle = False, num_workers=2),
-        }
-        configs = {
-            'class_names': refine_classnames(test_data.classes),
-            'mask': np.zeros((size, size)),
-        }
-    elif dataset in ["food101", "eurosat", "sun397", "ucf101", "stanfordcars", "flowers102"]:
-        data_path = os.path.join(data_path, dataset)
-        preprocess = transforms.Compose([
-            transforms.Lambda(lambda x: x.convert("RGB")),
-            transforms.Resize((size, size)),
-            transforms.ToTensor(),
-        ])
-        train_data = COOPLMDBDataset(root = data_path, split="train", transform = preprocess)
-        test_data = COOPLMDBDataset(root = data_path, split="test", transform = preprocess)
-        loaders = {
-            'train': DataLoader(train_data, 128, shuffle = True, num_workers=8),
-            'test': DataLoader(test_data, 128, shuffle = False, num_workers=8),
-        }
-        configs = {
-            'class_names': refine_classnames(test_data.classes),
-            'mask': np.zeros((size, size)),
-        }
-    return loaders, configs

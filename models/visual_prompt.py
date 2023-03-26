@@ -4,9 +4,9 @@ import torch.nn.functional as F
 import numpy as np
 
 
-class AdvProgram(nn.Module):
+class ExpansiveVisualPrompt(nn.Module):
     def __init__(self, out_size, mask, init = 'zero', normalize=None):
-        super(AdvProgram, self).__init__()
+        super(ExpansiveVisualPrompt, self).__init__()
         assert mask.shape[0] == mask.shape[1]
         in_size = mask.shape[0]
         self.out_size = out_size
@@ -33,9 +33,9 @@ class AdvProgram(nn.Module):
 
 
 
-class VisualPrompt(nn.Module):
+class AdditiveVisualPrompt(nn.Module):
     def __init__(self, size, pad):
-        super(VisualPrompt, self).__init__()
+        super(AdditiveVisualPrompt, self).__init__()
 
         self.size = size
         self.program = torch.nn.Parameter(data=torch.zeros(3, size, size)) 

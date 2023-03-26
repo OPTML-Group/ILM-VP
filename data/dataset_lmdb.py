@@ -6,10 +6,6 @@ import pickle
 import json
 from collections import OrderedDict
 import torch.utils.data as data
-from torch.utils.data import DataLoader
-from tqdm import tqdm
-import numpy as np
-import warnings
 
 import sys
 sys.path.append(".")

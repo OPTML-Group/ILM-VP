@@ -26,17 +26,19 @@ For Flowers102, DTD, UCF101, Food101, EuroSAT, OxfordPets, StanfordCars and SUN3
 
 ## Generate Prompts
 
-**VP on ResNet:**
+**VP on CNN:**
 
-`python experiments/resnet/vp_ilm.py --network resnet18 --dataset cifar10 --mapping-interval K`
+ILM-VP: `python experiments/cnn/ilm_vp.py --network resnet18 --dataset flowers102`
 
-$K = 1$：Our ILM-VP method.
+FLM-VP: `python experiments/cnn/flm_vp.py --network resnet18 --dataset flowers102`
 
-$K = 200$：(by default we run 200 epoch) The baseline FLM-VP method.
+RLM-VP: `python experiments/cnn/rlm_vp.py --network resnet18 --dataset flowers102`
 
 **TP on CLIP:**
 
-`python experiments/clip/tp_ilm.py --mapping-interval 1 --dataset cifar10`
+ILM-TP-VP: `python experiments/clip/ilm_tp_vp.py --dataset flowers102`
+
+SINGLE-TP-VP: `python experiments/clip/single_tp_vp.py --dataset flowers102`
 
 ## Contributor
 

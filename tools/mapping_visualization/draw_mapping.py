@@ -3,7 +3,6 @@ from matplotlib import pyplot as plt
 
 from .heatmap import heatmap, annotate_heatmap
 
-
 def plot_mapping(mapping_matrix, mapping_sequence, buf, row_names, col_names):
     if mapping_sequence.size(0) > 10:
         mapping_sequence = mapping_sequence[:10]
