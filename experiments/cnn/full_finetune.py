@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
         # Save CKPT
         state_dict = {
-            "fc_dict": network.fc.state_dict(),
+            "network_dict": network.state_dict(),
             "optimizer_dict": optimizer.state_dict(),
             "epoch": epoch,
             "best_acc": best_acc,
