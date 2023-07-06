@@ -46,10 +46,12 @@ SINGLE-TP-VP: `python experiments/clip/single_tp_vp.py --dataset flowers102`
 
 ## Citation
 ```
-@article{chen2022understanding,
-  title={Understanding and Improving Visual Prompting: A Label-Mapping Perspective},
-  author={Chen, Aochuan and Yao, Yuguang and Chen, Pin-Yu and Zhang, Yihua and Liu, Sijia},
-  journal={arXiv preprint arXiv:2211.11635},
-  year={2022}
+@InProceedings{Chen_2023_CVPR,
+    author    = {Chen, Aochuan and Yao, Yuguang and Chen, Pin-Yu and Zhang, Yihua and Liu, Sijia},
+    title     = {Understanding and Improving Visual Prompting: A Label-Mapping Perspective},
+    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    month     = {June},
+    year      = {2023},
+    pages     = {19133-19143}
 }
 ```
