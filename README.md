@@ -1,4 +1,6 @@
-# ILM
+# Iterative-Label-Mapping Visual Prompting (ILM-VP) 
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 [CVPR23] ["Understanding and Improving Visual Prompting: A Label-Mapping Perspective"](https://arxiv.org/abs/2211.11635)
 
