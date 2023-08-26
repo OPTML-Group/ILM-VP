@@ -14,7 +14,7 @@ We provide the training code for our ILM-VP method and the baselines both on Res
 
 ## Dependencies
 
-Run `pip3 install -r requirement.txt`.
+Run `pip3 install -r requirements.txt`.
 
 For path configurations, modify `cfg.py` according to your need.
 
