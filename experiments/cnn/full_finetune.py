@@ -21,7 +21,7 @@ if __name__ == '__main__':
     p.add_argument('--seed', type=int, default=7)
     p.add_argument('--dataset', choices=["cifar10", "cifar100", "abide", "dtd", "flowers102", "ucf101", "food101", "gtsrb", "svhn", "eurosat", "oxfordpets", "stanfordcars", "sun397"], required=True)
     p.add_argument('--epoch', type=int, default=200)
-    p.add_argument('--lr', type=float, default=0.01)
+    p.add_argument('--lr', type=float, default=0.0001)
     args = p.parse_args()
 
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
